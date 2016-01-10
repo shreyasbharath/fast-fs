@@ -35,12 +35,16 @@ void FastFsDirectory::DeleteFile( const std::string& filePath ) {
     m_FileMap.erase( filePath );
 }
 
-uint32_t FastFsDirectory::FileCount() {
+uint32_t FastFsDirectory::FileCount() const {
     return m_FileMap.size();
 }
 
-size_t FastFsDirectory::Size() {
-    return 0;
+size_t FastFsDirectory::Size() const {
+    size_t totalSize = 0;
+    for ( auto const file : m_FileMap ) {
+        totalSize += file.second->Size();
+    }
+    return totalSize;
 }
 
 FastFsDirectory& FastFsDirectory::operator=( FastFsDirectory other ) {

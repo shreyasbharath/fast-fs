@@ -157,6 +157,17 @@ TEST_F( FastFsDirTest, EmptyDirectoryCreated_DirSizeReturnsZero ) {
     EXPECT_THAT( m_Dir->Size(), Eq( 0 ) );
 }
 
+TEST_F( FastFsDirTest, DirectoryCreated_ThreeFilesOpenedAndWrittenTo_DirSizeReturnsCumulativeSizeOfFiles ) {
+    auto file1 = m_Dir->OpenFile( "testfile", FastFsDirectory::FileOpenMode::OVERWRITE );
+    std::vector< uint8_t > file1Data { 0, 1, 2, 3 };
+    file1->Write( file1Data );
+    auto file2 = m_Dir->OpenFile( "testfile2", FastFsDirectory::FileOpenMode::OVERWRITE );
+    std::vector< uint8_t > file2Data { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+    file2->Write( file2Data );
+
+    EXPECT_THAT( m_Dir->Size(), Eq( file1Data.size() + file2Data.size() ) );
+}
+
 class FastFsFileTest : public ::testing::Test {
 protected:
     void SetUp() {

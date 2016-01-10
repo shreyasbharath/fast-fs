@@ -6,6 +6,7 @@
 #define FAST_FS_FASTFSDIRECTORY_H
 
 // TODO Support nested directories
+// TODO CloseFile API required? Does not seem to make sense
 
 #include <cstdint>
 #include <string>
@@ -22,13 +23,12 @@ public:
 
     std::string Path();
     std::shared_ptr< FastFsFile > OpenFile(const std::string&filename, FileOpenMode mode );
-    void CloseFile( const std::string& filePath );
     bool FileExists( const std::string& filePath );
     void RenameFile( const std::string& oldFile, const std::string& newFile );
     void DeleteFile( const std::string& filePath );
-    uint32_t FileCount();
+    uint32_t FileCount() const;
     std::map< std::string, std::shared_ptr< FastFsFile > > Listing();
-    size_t Size();
+    size_t Size() const;
 
     FastFsDirectory& operator=( FastFsDirectory other );
     bool operator==( const FastFsDirectory& other ) const;
