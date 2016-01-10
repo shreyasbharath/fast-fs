@@ -28,8 +28,19 @@ bool FastFsDirectory::FileExists( const std::string& filePath ) {
     return fileExists;
 }
 
+void FastFsDirectory::DeleteFile( const std::string& filePath ) {
+    if ( !FileExists( filePath ) ) {
+        return;
+    }
+    m_FileMap.erase( filePath );
+}
+
 uint32_t FastFsDirectory::FileCount() {
     return m_FileMap.size();
+}
+
+size_t FastFsDirectory::Size() {
+    return 0;
 }
 
 FastFsDirectory& FastFsDirectory::operator=( FastFsDirectory other ) {

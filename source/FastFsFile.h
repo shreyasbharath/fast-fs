@@ -14,7 +14,7 @@ public:
     FastFsFile( const std::string& path );
     ~FastFsFile();
 
-    std::vector< uint8_t > Read();
+    const std::vector< uint8_t >& Read();
     void Write(const std::vector< uint8_t >& data);
     size_t Size();
 

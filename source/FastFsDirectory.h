@@ -27,8 +27,8 @@ public:
     void RenameFile( const std::string& oldFile, const std::string& newFile );
     void DeleteFile( const std::string& filePath );
     uint32_t FileCount();
-    std::map< std::string, std::shared_ptr< FastFsFile > > Listing( const std::string& dirPath );
-    size_t Size( const std::string& dirPath );
+    std::map< std::string, std::shared_ptr< FastFsFile > > Listing();
+    size_t Size();
 
     FastFsDirectory& operator=( FastFsDirectory other );
     bool operator==( const FastFsDirectory& other ) const;

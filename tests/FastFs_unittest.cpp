@@ -5,6 +5,7 @@
 
 using ::testing::Eq;
 using ::testing::StrEq;
+using ::testing::ContainerEq;
 
 class FastFsTest : public ::testing::Test {
 protected:
@@ -104,6 +105,94 @@ TEST_F( FastFsDirTest, DirectoryCreated_OpenFile_FileCountReturnsOne ) {
     m_Dir->OpenFile( "testfile", FastFsDirectory::FileOpenMode::OVERWRITE );
 
     EXPECT_THAT( m_Dir->FileCount(), Eq( 1 ) );
+}
+
+TEST_F( FastFsDirTest, FileAlreadyOpened_OpenFileAgain_FileCountReturnsOne ) {
+    m_Dir->OpenFile( "testfile", FastFsDirectory::FileOpenMode::OVERWRITE );
+
+    m_Dir->OpenFile( "testfile", FastFsDirectory::FileOpenMode::OVERWRITE );
+
+    EXPECT_THAT( m_Dir->FileCount(), Eq( 1 ) );
+}
+
+TEST_F( FastFsDirTest, FileOpened_AnotherFileOpened_FileCountReturnsTwo ) {
+    m_Dir->OpenFile( "testfile", FastFsDirectory::FileOpenMode::OVERWRITE );
+
+    m_Dir->OpenFile( "testfile2", FastFsDirectory::FileOpenMode::OVERWRITE );
+
+    EXPECT_THAT( m_Dir->FileCount(), Eq( 2 ) );
+}
+
+TEST_F( FastFsDirTest, FileNotOpened_DeleteFile_FileCountReturnsZero ) {
+    m_Dir->DeleteFile( "testfile" );
+
+    EXPECT_THAT( m_Dir->FileCount(), Eq( 0 ) );
+}
+
+TEST_F( FastFsDirTest, FileOpened_DeleteFile_FileCountReturnsZero ) {
+    m_Dir->OpenFile( "testfile", FastFsDirectory::FileOpenMode::OVERWRITE );
+
+    m_Dir->DeleteFile( "testfile" );
+
+    EXPECT_THAT( m_Dir->FileCount(), Eq( 0 ) );
+}
+
+TEST_F( FastFsDirTest, FileOpened_DeleteFile_FileExistsReturnsFalse ) {
+    m_Dir->OpenFile( "testfile", FastFsDirectory::FileOpenMode::OVERWRITE );
+
+    m_Dir->DeleteFile( "testfile" );
+
+    EXPECT_THAT( m_Dir->FileExists( "testfile" ), Eq( false ) );
+}
+
+TEST_F( FastFsDirTest, FileOpened__FileExistsReturnsFalse ) {
+    m_Dir->OpenFile( "testfile", FastFsDirectory::FileOpenMode::OVERWRITE );
+
+    m_Dir->DeleteFile( "testfile" );
+
+    EXPECT_THAT( m_Dir->FileExists( "testfile" ), Eq( false ) );
+}
+
+TEST_F( FastFsDirTest, EmptyDirectoryCreated_DirSizeReturnsZero ) {
+    EXPECT_THAT( m_Dir->Size(), Eq( 0 ) );
+}
+
+class FastFsFileTest : public ::testing::Test {
+protected:
+    void SetUp() {
+        m_pFastFs.reset( new FastFs() );
+        m_pDir = m_pFastFs->CreateDirectory( "test" );
+        m_pFile = m_pDir->OpenFile( "testfile", FastFsDirectory::FileOpenMode::OVERWRITE );
+    }
+
+    void TearDown() {
+    }
+
+    std::unique_ptr< FastFs > m_pFastFs;
+    std::shared_ptr< FastFsDirectory > m_pDir;
+    std::shared_ptr< FastFsFile > m_pFile;
+};
+
+TEST_F( FastFsFileTest, FileOpened_ReadFromFile_ReturnsNoData ) {
+    EXPECT_THAT( m_pFile->Read().size(), Eq( 0 ) );
+}
+
+TEST_F( FastFsFileTest, FileOpened_SizeReturnsZero ) {
+    EXPECT_THAT( m_pFile->Size(), Eq( 0 ) );
+}
+
+TEST_F( FastFsFileTest, FileOpened_WriteToFille_SizeIsCorrect ) {
+    std::vector< uint8_t > data { 0, 1, 2, 3 };
+    m_pFile->Write( data );
+
+    EXPECT_THAT( m_pFile->Size(), Eq( data.size() ) );
+}
+
+TEST_F( FastFsFileTest, FileOpened_WriteToFille_ReadReturnsWrittenData ) {
+    std::vector< uint8_t > data { 0, 1, 2, 3 };
+    m_pFile->Write( data );
+
+    EXPECT_THAT( m_pFile->Read(), ContainerEq( data ) );
 }
 
 int main(int argc, char **argv) {
