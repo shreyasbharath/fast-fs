@@ -97,29 +97,29 @@ TEST_F( FastFsDirTest, DirectoryCreatedWithNoFiles_FileCountReturnsZero ) {
 }
 
 TEST_F( FastFsDirTest, DirectoryCreated_OpenFile_FileExistsReturnsTrue ) {
-    m_Dir->OpenFile( "testfile", FastFsDirectory::FileOpenMode::OVERWRITE );
+    m_Dir->OpenFile( "testfile", FileOpenMode::OVERWRITE );
 
     EXPECT_THAT( m_Dir->FileExists( "testfile" ), Eq( true ) );
 }
 
 TEST_F( FastFsDirTest, DirectoryCreated_OpenFile_FileCountReturnsOne ) {
-    m_Dir->OpenFile( "testfile", FastFsDirectory::FileOpenMode::OVERWRITE );
+    m_Dir->OpenFile( "testfile", FileOpenMode::OVERWRITE );
 
     EXPECT_THAT( m_Dir->FileCount(), Eq( 1 ) );
 }
 
 TEST_F( FastFsDirTest, FileAlreadyOpened_OpenFileAgain_FileCountReturnsOne ) {
-    m_Dir->OpenFile( "testfile", FastFsDirectory::FileOpenMode::OVERWRITE );
+    m_Dir->OpenFile( "testfile", FileOpenMode::OVERWRITE );
 
-    m_Dir->OpenFile( "testfile", FastFsDirectory::FileOpenMode::OVERWRITE );
+    m_Dir->OpenFile( "testfile", FileOpenMode::OVERWRITE );
 
     EXPECT_THAT( m_Dir->FileCount(), Eq( 1 ) );
 }
 
 TEST_F( FastFsDirTest, FileOpened_AnotherFileOpened_FileCountReturnsTwo ) {
-    m_Dir->OpenFile( "testfile", FastFsDirectory::FileOpenMode::OVERWRITE );
+    m_Dir->OpenFile( "testfile", FileOpenMode::OVERWRITE );
 
-    m_Dir->OpenFile( "testfile2", FastFsDirectory::FileOpenMode::OVERWRITE );
+    m_Dir->OpenFile( "testfile2", FileOpenMode::OVERWRITE );
 
     EXPECT_THAT( m_Dir->FileCount(), Eq( 2 ) );
 }
@@ -131,7 +131,7 @@ TEST_F( FastFsDirTest, FileNotOpened_DeleteFile_FileCountReturnsZero ) {
 }
 
 TEST_F( FastFsDirTest, FileOpened_DeleteFile_FileCountReturnsZero ) {
-    m_Dir->OpenFile( "testfile", FastFsDirectory::FileOpenMode::OVERWRITE );
+    m_Dir->OpenFile( "testfile", FileOpenMode::OVERWRITE );
 
     m_Dir->DeleteFile( "testfile" );
 
@@ -139,7 +139,7 @@ TEST_F( FastFsDirTest, FileOpened_DeleteFile_FileCountReturnsZero ) {
 }
 
 TEST_F( FastFsDirTest, FileOpened_DeleteFile_FileExistsReturnsFalse ) {
-    m_Dir->OpenFile( "testfile", FastFsDirectory::FileOpenMode::OVERWRITE );
+    m_Dir->OpenFile( "testfile", FileOpenMode::OVERWRITE );
 
     m_Dir->DeleteFile( "testfile" );
 
@@ -147,7 +147,7 @@ TEST_F( FastFsDirTest, FileOpened_DeleteFile_FileExistsReturnsFalse ) {
 }
 
 TEST_F( FastFsDirTest, FileOpened__FileExistsReturnsFalse ) {
-    m_Dir->OpenFile( "testfile", FastFsDirectory::FileOpenMode::OVERWRITE );
+    m_Dir->OpenFile( "testfile", FileOpenMode::OVERWRITE );
 
     m_Dir->DeleteFile( "testfile" );
 
@@ -159,10 +159,10 @@ TEST_F( FastFsDirTest, EmptyDirectoryCreated_DirSizeReturnsZero ) {
 }
 
 TEST_F( FastFsDirTest, DirectoryCreated_TwoFilesOpenedAndWrittenTo_DirSizeReturnsCumulativeSizeOfFiles ) {
-    auto file1 = m_Dir->OpenFile( "testfile", FastFsDirectory::FileOpenMode::OVERWRITE );
+    auto file1 = m_Dir->OpenFile( "testfile", FileOpenMode::OVERWRITE );
     std::vector< uint8_t > file1Data { 0, 1, 2, 3 };
     file1->Write( file1Data );
-    auto file2 = m_Dir->OpenFile( "testfile2", FastFsDirectory::FileOpenMode::OVERWRITE );
+    auto file2 = m_Dir->OpenFile( "testfile2", FileOpenMode::OVERWRITE );
     std::vector< uint8_t > file2Data { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
     file2->Write( file2Data );
 
@@ -170,8 +170,8 @@ TEST_F( FastFsDirTest, DirectoryCreated_TwoFilesOpenedAndWrittenTo_DirSizeReturn
 }
 
 TEST_F( FastFsDirTest, DirectoryCreated_TwoFilesOpened_DirListingListsFiles ) {
-    auto file1 = m_Dir->OpenFile( "testfile", FastFsDirectory::FileOpenMode::OVERWRITE );
-    auto file2 = m_Dir->OpenFile( "testfile2", FastFsDirectory::FileOpenMode::OVERWRITE );
+    auto file1 = m_Dir->OpenFile( "testfile", FileOpenMode::OVERWRITE );
+    auto file2 = m_Dir->OpenFile( "testfile2", FileOpenMode::OVERWRITE );
 
     EXPECT_THAT( m_Dir->Listing(), ElementsAre( "testfile", "testfile2" ) );
 }
@@ -181,7 +181,7 @@ protected:
     void SetUp() {
         m_pFastFs.reset( new FastFs() );
         m_pDir = m_pFastFs->CreateDirectory( "test" );
-        m_pFile = m_pDir->OpenFile( "testfile", FastFsDirectory::FileOpenMode::OVERWRITE );
+        m_pFile = m_pDir->OpenFile( "testfile", FileOpenMode::OVERWRITE );
     }
 
     void TearDown() {
@@ -212,6 +212,43 @@ TEST_F( FastFsFileTest, FileOpened_WriteToFille_ReadReturnsWrittenData ) {
     m_pFile->Write( data );
 
     EXPECT_THAT( m_pFile->Read(), ContainerEq( data ) );
+}
+
+class FastFsFileModeTest : public ::testing::Test {
+protected:
+    void SetUp() {
+        m_pFastFs.reset( new FastFs() );
+        m_pDir = m_pFastFs->CreateDirectory( "test" );
+    }
+
+    void TearDown() {
+    }
+
+    std::unique_ptr< FastFs > m_pFastFs;
+    std::shared_ptr< FastFsDirectory > m_pDir;
+    std::shared_ptr< FastFsFile > m_pFile;
+};
+
+TEST_F( FastFsFileModeTest, FileOpenedInOverWriteModeWithWrittenData_WriteAgain_OverwritesOldData ) {
+    m_pFile = m_pDir->OpenFile( "testfile", FileOpenMode::OVERWRITE );
+    std::vector< uint8_t > data { 0, 1, 2, 3 };
+    m_pFile->Write( data );
+
+    std::vector< uint8_t > newData { 4, 5, 6, 7, 8 };
+    m_pFile->Write( newData );
+
+    EXPECT_THAT( m_pFile->Read(), ElementsAre( 4, 5, 6, 7, 8 ) );
+}
+
+TEST_F( FastFsFileModeTest, FileOpenedInAppendModeWithWrittenData_WriteAgain_AppendsToOldOldData ) {
+    m_pFile = m_pDir->OpenFile( "testfile", FileOpenMode::APPEND );
+    std::vector< uint8_t > data { 0, 1, 2, 3 };
+    m_pFile->Write( data );
+
+    std::vector< uint8_t > newData { 4, 5, 6, 7, 8 };
+    m_pFile->Write( newData );
+
+    EXPECT_THAT( m_pFile->Read(), ElementsAre( 0, 1, 2, 3, 4, 5, 6, 7, 8 ) );
 }
 
 int main(int argc, char **argv) {

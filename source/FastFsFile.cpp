@@ -4,12 +4,13 @@
 
 #include "FastFsFile.h"
 
-FastFsFile::FastFsFile( const std::string& path ) {
-
+FastFsFile::FastFsFile( const std::string& filePath, FileOpenMode mode ) :
+    m_FilePath( filePath ),
+    m_Mode( mode )
+{
 }
 
 FastFsFile::~FastFsFile() {
-
 }
 
 const std::vector< uint8_t >& FastFsFile::Read() {
@@ -17,7 +18,12 @@ const std::vector< uint8_t >& FastFsFile::Read() {
 }
 
 void FastFsFile::Write(const std::vector< uint8_t >& data) {
-    m_Data = data;
+    if ( m_Mode == FileOpenMode::OVERWRITE ) {
+        m_Data = data;
+    }
+    else {
+        m_Data.insert( std::end( m_Data ), std::begin( data ), std::end(  data) );
+    }
 }
 
 size_t FastFsFile::Size() {

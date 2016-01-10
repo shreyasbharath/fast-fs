@@ -18,7 +18,7 @@ std::string FastFsDirectory::Path() {
 }
 
 std::shared_ptr< FastFsFile > FastFsDirectory::OpenFile(const std::string& filename, FileOpenMode mode ) {
-    auto file = std::make_shared< FastFsFile >( filename );
+    auto file = std::make_shared< FastFsFile >( filename, mode );
     m_FileMap[ filename ] = file;
     return file;
 }

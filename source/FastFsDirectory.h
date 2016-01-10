@@ -20,8 +20,6 @@ public:
     FastFsDirectory( const std::string& dirPath );
     ~FastFsDirectory();
 
-    enum class FileOpenMode { OVERWRITE, APPEND };
-
     std::string Path();
     std::shared_ptr< FastFsFile > OpenFile(const std::string&filename, FileOpenMode mode );
     bool FileExists( const std::string& filePath ) const;
