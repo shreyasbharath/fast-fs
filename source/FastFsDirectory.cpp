@@ -23,7 +23,7 @@ std::shared_ptr< FastFsFile > FastFsDirectory::OpenFile(const std::string& filen
     return file;
 }
 
-bool FastFsDirectory::FileExists( const std::string& filePath ) {
+bool FastFsDirectory::FileExists( const std::string& filePath ) const {
     bool fileExists = m_FileMap.find( filePath ) != m_FileMap.end();
     return fileExists;
 }
@@ -45,6 +45,14 @@ size_t FastFsDirectory::Size() const {
         totalSize += file.second->Size();
     }
     return totalSize;
+}
+
+std::vector< std::string > FastFsDirectory::Listing() const {
+    std::vector< std::string > files;
+    for ( auto file : m_FileMap ) {
+        files.push_back( file.first );
+    }
+    return files;
 }
 
 FastFsDirectory& FastFsDirectory::operator=( FastFsDirectory other ) {

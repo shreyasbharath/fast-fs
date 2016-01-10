@@ -12,6 +12,7 @@
 #include <string>
 #include <map>
 #include <memory>
+#include <vector>
 #include "FastFsFile.h"
 
 class FastFsDirectory {
@@ -23,12 +24,12 @@ public:
 
     std::string Path();
     std::shared_ptr< FastFsFile > OpenFile(const std::string&filename, FileOpenMode mode );
-    bool FileExists( const std::string& filePath );
+    bool FileExists( const std::string& filePath ) const;
     void RenameFile( const std::string& oldFile, const std::string& newFile );
     void DeleteFile( const std::string& filePath );
     uint32_t FileCount() const;
-    std::map< std::string, std::shared_ptr< FastFsFile > > Listing();
     size_t Size() const;
+    std::vector< std::string > Listing() const;
 
     FastFsDirectory& operator=( FastFsDirectory other );
     bool operator==( const FastFsDirectory& other ) const;

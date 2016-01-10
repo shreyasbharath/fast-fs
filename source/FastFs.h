@@ -17,6 +17,7 @@ public:
     bool DirectoryExists( const std::string& dirPath ) const;
     std::string CurrentDirectory() const;
     void ChangeDirectory( const std::string& dirPath );
+    const std::map< std::string, std::shared_ptr< FastFsDirectory > >& ListDirectories() const;
     uint32_t NumDirectories() const;
 
 private:
